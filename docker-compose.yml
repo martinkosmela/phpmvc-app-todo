@@ -1,0 +1,56 @@
+# use version 3 of the docker compose syntax
+version: '3'
+services:
+  # we named our first service 'web'
+  web:
+
+    # use created from web.dockerfile image
+    # docker build -f web.dockerfile -t phpmvc-web .
+    image: phpmvc-web
+
+    # map host port 8080 to container port 80
+    ports:
+        - 8082:80
+
+    container_name: phpmvc-example1-web
+
+    # volumes are like shared folders
+    # container will see your local code changes
+    volumes:
+      - .:/var/www
+      #- /app/config/config.php:/var/www/app/config/config.php
+
+    # first load the 'db' service
+    depends_on:
+      - db
+
+    # make 'db' a known service/host inside of 'web'
+    # use this to make a mysql connection to host 'db'
+    links:
+      - db
+
+  db:
+    # use a default image
+    image: phpmvc-db
+
+    # again, port mapping
+    ports:
+      - 33601:3306
+
+    container_name: phpmvc-example1-db
+
+    # init database on container start (already done in docker image)
+    # volumes:
+     # - dbdata:/var/lib/mysql
+
+    # the mysql image uses these to create database and users
+    environment:
+     MYSQL_DATABASE: data
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_USER: user
+     MYSQL_PASSWORD: pass
+
+    restart: always
+
+# volumes:
+#   dbdata:
